@@ -75,7 +75,7 @@ public:
     void handleTradeSequence(const std::vector<MBORecord>& sequence);
 
     // Output generation
-    std::string generateMBPOutput(const MBORecord& record);
+    std::string generateMBPOutput(const MBORecord& record, int row_index);
     std::vector<PriceLevel> getBidLevels(int max_levels = 10) const;
     std::vector<PriceLevel> getAskLevels(int max_levels = 10) const;
 

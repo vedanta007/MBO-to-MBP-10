@@ -82,7 +82,7 @@ std::vector<std::string> CSVParser::splitCSV(const std::string& line) {
 
 // PerformanceTimer Implementation
 PerformanceTimer::PerformanceTimer(const std::string& name) 
-    : operation_name(name), start_time(std::chrono::high_resolution_clock::now()) {
+    : start_time(std::chrono::high_resolution_clock::now()), operation_name(name) {
 }
 
 PerformanceTimer::~PerformanceTimer() {

@@ -101,9 +101,9 @@ void OrderBook::cancelOrder(const MBORecord& record) {
 void OrderBook::handleTradeSequence(const std::vector<MBORecord>& sequence) {
     if (sequence.size() != 3) return;
 
-    const MBORecord& trade = sequence[0];
+    // const MBORecord& trade = sequence[0];  // Unused but kept for clarity
     const MBORecord& fill = sequence[1];
-    const MBORecord& cancel = sequence[2];
+    // const MBORecord& cancel = sequence[2];  // Unused but kept for clarity
 
     // As per requirements: Trade appears on opposite side, but actual change is on the book side
     // The Fill and Cancel actions show the actual side where the order exists
@@ -169,11 +169,11 @@ std::vector<PriceLevel> OrderBook::getAskLevels(int max_levels) const {
     return result;
 }
 
-std::string OrderBook::generateMBPOutput(const MBORecord& record) {
+std::string OrderBook::generateMBPOutput(const MBORecord& record, int row_index) {
     std::stringstream ss;
 
     // Output the basic record information (columns 0-13)
-    ss << record.ts_recv << ","
+    ss << row_index << "," << record.ts_recv << ","
        << record.ts_event << ","
        << "10,"  // rtype for MBP
        << record.publisher_id << ","
@@ -194,7 +194,7 @@ std::string OrderBook::generateMBPOutput(const MBORecord& record) {
     // Output 10 levels of bid/ask data
     for (int i = 0; i < 10; ++i) {
         // Bid level
-        if (i < bid_levels.size()) {
+        if (i < static_cast<int>(bid_levels.size())) {
             ss << std::fixed << std::setprecision(2) << bid_levels[i].price << ","
                << bid_levels[i].total_size << ","
                << bid_levels[i].order_count << ",";
@@ -203,7 +203,7 @@ std::string OrderBook::generateMBPOutput(const MBORecord& record) {
         }
 
         // Ask level
-        if (i < ask_levels.size()) {
+        if (i < static_cast<int>(ask_levels.size())) {
             ss << std::fixed << std::setprecision(2) << ask_levels[i].price << ","
                << ask_levels[i].total_size << ","
                << ask_levels[i].order_count;

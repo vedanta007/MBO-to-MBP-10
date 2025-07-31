@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Write CSV header
-    output << "ts_recv,ts_event,rtype,publisher_id,instrument_id,action,side,depth,price,size,flags,ts_in_delta,sequence,";
+    output << ",ts_recv,ts_event,rtype,publisher_id,instrument_id,action,side,depth,price,size,flags,ts_in_delta,sequence,";
 
     // Write bid/ask level headers
     for (int i = 0; i < 10; ++i) {
@@ -65,6 +65,7 @@ int main(int argc, char* argv[]) {
 
         int processed_count = 0;
         int output_count = 0;
+        int row_index = 0;
 
         for (const auto& record : records) {
             // Process the record
@@ -72,12 +73,11 @@ int main(int argc, char* argv[]) {
             processed_count++;
 
             // Generate output for every record that affects the book
-            // Skip the initial 'R' (reset) action as per requirements
-            if (record.action != 'R') {
-                std::string mbp_line = orderbook.generateMBPOutput(record);
-                output << mbp_line << "\n";
-                output_count++;
-            }
+            // Include the initial 'R' (reset) action as it appears in expected output
+            std::string mbp_line = orderbook.generateMBPOutput(record, row_index);
+            output << mbp_line << "\n";
+            output_count++;
+            row_index++;
 
             // Progress indicator
             if (processed_count % 1000 == 0) {
