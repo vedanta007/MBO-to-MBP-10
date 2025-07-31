@@ -23,54 +23,6 @@ void OrderBook::processRecord(const MBORecord& record) {
     handleRegularActions(record);
 }
 
-bool OrderBook::handleSpecialCases(const MBORecord& record) {
-    // Handle special cases first
-    if (record.action == 'R') {
-        // Clear/Reset - ignore as per requirements
-        return true;
-    }
-
-    if (record.side == 'N' && record.action == 'T') {
-        // Trade with side 'N' - don't alter orderbook as per requirements
-        return true;
-    }
-
-    return false;
-}
-
-bool OrderBook::detectSequence(const MBORecord& record) {
-    // Handle T->F->C sequence detection
-    if (record.action == 'T' || record.action == 'F' || record.action == 'C') {
-        pending_sequence.push_back(record);
-
-        // Check if we have a complete T->F->C sequence
-        if (pending_sequence.size() >= 3) {
-            size_t start = pending_sequence.size() - 3;
-            if (pending_sequence[start].action == 'T' &&
-                pending_sequence[start + 1].action == 'F' &&
-                pending_sequence[start + 2].action == 'C') {
-
-                // Process as combined trade sequence
-                std::vector<MBORecord> sequence(pending_sequence.begin() + start, pending_sequence.end());
-                handleTradeSequence(sequence);
-
-                // Clear the processed sequence
-                pending_sequence.erase(pending_sequence.begin() + start, pending_sequence.end());
-                return true;
-            }
-        }
-
-        // If not part of a complete sequence and action is C, process immediately
-        if (record.action == 'C') {
-            cancelOrder(record);
-        }
-
-        return true;
-    }
-
-    return false;
-}
-
 void OrderBook::handleRegularActions(const MBORecord& record) {
     // Handle regular Add and Cancel actions
     switch (record.action) {
@@ -141,24 +93,6 @@ void OrderBook::handleTradeSequence(const std::vector<MBORecord>& sequence) {
 
         // Remove order from tracking
         orders.erase(it);
-    }
-}
-
-void OrderBook::updatePriceLevel(std::map<double, PriceLevel>& levels, double price, int size_delta, int count_delta) {
-    auto it = levels.find(price);
-    if (it != levels.end()) {
-        // Update existing level
-        PriceLevel& level = it->second; // Avoid multiple lookups
-        level.total_size += size_delta;
-        level.order_count += count_delta;
-
-        // Remove level if no orders remain
-        if (level.order_count <= 0 || level.total_size <= 0) {
-            levels.erase(it);
-        }
-    } else if (size_delta > 0 && count_delta > 0) {
-        // Add new level
-        levels.emplace(price, PriceLevel(price, size_delta, count_delta)); // Use emplace for efficiency
     }
 }
 

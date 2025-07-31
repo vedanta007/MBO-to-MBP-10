@@ -85,13 +85,55 @@ public:
     void printBook() const;
 
 private:
-    void updatePriceLevel(std::map<double, PriceLevel>& levels, double price, int size_delta, int count_delta);
+    inline void updatePriceLevel(std::map<double, PriceLevel>& levels, double price, int size_delta, int count_delta) {
+        auto it = levels.find(price);
+        if (it != levels.end()) {
+            // Update existing level
+            PriceLevel& level = it->second;
+            level.total_size += size_delta;
+            level.order_count += count_delta;
+
+            // Remove level if no orders remain
+            if (level.order_count <= 0 || level.total_size <= 0) {
+                levels.erase(it);
+            }
+        } else if (size_delta > 0 && count_delta > 0) {
+            // Add new level
+            levels.emplace(price, PriceLevel(price, size_delta, count_delta));
+        }
+    }
+
+    inline bool handleSpecialCases(const MBORecord& record) {
+        if (record.action == 'R') {
+            return true; // Reset action
+        }
+        if (record.side == 'N' && record.action == 'T') {
+            return true; // Trade with side 'N'
+        }
+        return false;
+    }
+
+    inline bool detectSequence(const MBORecord& record) {
+        if (record.action == 'T' || record.action == 'F' || record.action == 'C') {
+            pending_sequence.push_back(record);
+            if (pending_sequence.size() >= 3) {
+                size_t start = pending_sequence.size() - 3;
+                if (pending_sequence[start].action == 'T' &&
+                    pending_sequence[start + 1].action == 'F' &&
+                    pending_sequence[start + 2].action == 'C') {
+                    handleTradeSequence({pending_sequence[start], pending_sequence[start + 1], pending_sequence[start + 2]});
+                    pending_sequence.clear();
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     void removePriceLevel(std::map<double, PriceLevel>& levels, double price);
     bool isTradeSequenceComplete() const;
 
     // Modularized helper functions
-    bool handleSpecialCases(const MBORecord& record);
-    bool detectSequence(const MBORecord& record);
     void handleRegularActions(const MBORecord& record);
 };
 
