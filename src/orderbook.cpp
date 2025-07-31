@@ -266,3 +266,9 @@ void OrderBook::printBook() const {
     }
     std::cout << "=======================\n\n";
 }
+
+void OrderBook::processBatch(const std::vector<MBORecord>& records) {
+    for (const auto& record : records) {
+        processRecord(record); // Reuse existing logic for individual records
+    }
+}

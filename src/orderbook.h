@@ -73,6 +73,7 @@ public:
     void addOrder(const MBORecord& record);
     void cancelOrder(const MBORecord& record);
     void handleTradeSequence(const std::vector<MBORecord>& sequence);
+    void processBatch(const std::vector<MBORecord>& records);
 
     // Output generation
     std::string generateMBPOutput(const MBORecord& record, int row_index);
