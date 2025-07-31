@@ -95,10 +95,36 @@ Expected performance improvements over naive implementations:
 
 ## Testing
 
-The implementation includes comprehensive validation:
-- **Correctness**: Output matches expected MBP format exactly
-- **Performance**: Benchmarking against large datasets
-- **Edge Cases**: Handles malformed sequences and boundary conditions
+The implementation includes a comprehensive testing framework with 58 unit tests and integration tests:
+
+### Unit Tests
+```bash
+make test
+```
+- **58 test cases** covering all functionality
+- **12 test categories** including edge cases and performance
+- **100% success rate** with detailed reporting
+
+### Integration Tests
+```bash
+make integration
+```
+- **End-to-end pipeline testing**
+- **Test data validation**
+- **Output format verification**
+
+### Test Coverage
+- **Core Functionality**: Order addition, cancellation, price level management
+- **Special Requirements**: T→F→C sequences, reset actions, side 'N' handling
+- **Performance**: >10,000 orders/second processing validation
+- **Edge Cases**: Zero values, negative prices, large numbers, incomplete sequences
+
+### Test Documentation
+See `TESTING.md` for comprehensive testing documentation including:
+- Test structure and categories
+- Test data specifications
+- Performance benchmarks
+- Adding new tests
 
 ## Limitations and Future Improvements
 

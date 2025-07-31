@@ -9,7 +9,7 @@ int main(int argc, char* argv[]) {
     }
 
     std::string input_file = argv[1];
-    std::string output_file = "output_mbp.csv";
+    std::string output_file = "../output/output_mbp.csv";
 
     std::cout << "Starting orderbook reconstruction..." << std::endl;
     std::cout << "Input file: " << input_file << std::endl;
