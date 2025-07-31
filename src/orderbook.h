@@ -87,6 +87,11 @@ private:
     void updatePriceLevel(std::map<double, PriceLevel>& levels, double price, int size_delta, int count_delta);
     void removePriceLevel(std::map<double, PriceLevel>& levels, double price);
     bool isTradeSequenceComplete() const;
+
+    // Modularized helper functions
+    bool handleSpecialCases(const MBORecord& record);
+    bool detectSequence(const MBORecord& record);
+    void handleRegularActions(const MBORecord& record);
 };
 
 // CSV parsing utilities

@@ -12,17 +12,33 @@ OrderBook::~OrderBook() {
 }
 
 void OrderBook::processRecord(const MBORecord& record) {
+    if (handleSpecialCases(record)) {
+        return;
+    }
+
+    if (detectSequence(record)) {
+        return;
+    }
+
+    handleRegularActions(record);
+}
+
+bool OrderBook::handleSpecialCases(const MBORecord& record) {
     // Handle special cases first
     if (record.action == 'R') {
         // Clear/Reset - ignore as per requirements
-        return;
+        return true;
     }
 
     if (record.side == 'N' && record.action == 'T') {
         // Trade with side 'N' - don't alter orderbook as per requirements
-        return;
+        return true;
     }
 
+    return false;
+}
+
+bool OrderBook::detectSequence(const MBORecord& record) {
     // Handle T->F->C sequence detection
     if (record.action == 'T' || record.action == 'F' || record.action == 'C') {
         pending_sequence.push_back(record);
@@ -40,7 +56,7 @@ void OrderBook::processRecord(const MBORecord& record) {
 
                 // Clear the processed sequence
                 pending_sequence.erase(pending_sequence.begin() + start, pending_sequence.end());
-                return;
+                return true;
             }
         }
 
@@ -48,12 +64,14 @@ void OrderBook::processRecord(const MBORecord& record) {
         if (record.action == 'C') {
             cancelOrder(record);
         }
-        // For standalone T and F actions, we might need to handle differently
-        // But based on requirements, they should mostly be part of sequences
 
-        return;
+        return true;
     }
 
+    return false;
+}
+
+void OrderBook::handleRegularActions(const MBORecord& record) {
     // Handle regular Add and Cancel actions
     switch (record.action) {
         case 'A':
