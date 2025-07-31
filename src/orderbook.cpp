@@ -148,16 +148,17 @@ void OrderBook::updatePriceLevel(std::map<double, PriceLevel>& levels, double pr
     auto it = levels.find(price);
     if (it != levels.end()) {
         // Update existing level
-        it->second.total_size += size_delta;
-        it->second.order_count += count_delta;
+        PriceLevel& level = it->second; // Avoid multiple lookups
+        level.total_size += size_delta;
+        level.order_count += count_delta;
 
         // Remove level if no orders remain
-        if (it->second.order_count <= 0 || it->second.total_size <= 0) {
+        if (level.order_count <= 0 || level.total_size <= 0) {
             levels.erase(it);
         }
     } else if (size_delta > 0 && count_delta > 0) {
         // Add new level
-        levels[price] = PriceLevel(price, size_delta, count_delta);
+        levels.emplace(price, PriceLevel(price, size_delta, count_delta)); // Use emplace for efficiency
     }
 }
 
